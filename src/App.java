@@ -56,16 +56,23 @@ public class App {
     public static void main(String[] args) throws Exception {
 
         System.out.println( );
+        Double sum = 0.0;
 
         for( int x = 0; x < 4; x++ ){
             if ( x == 0) {
-                System.out.println( "|       A        |       B         |       AND" );
+                System.out.println( "|       A        |       B         |                AND              |      IDEAL     |        ERROR       " );
                 //Ciclo para recorrer los valores de entrada ( inputs )
                 for( int i = 0; i < inputs.getRows(); i++ ) {
                     Double aux = AND( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) );
-                    System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[0][i] + "       |        " + Math.round(Math.abs( (r[0][i] - aux) * 100 ) ) + " %");
-
+                    System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[0][i] + "       |        " + Math.round(Math.abs( (r[0][i] - aux) * 100 ) ) + " % ");
+                    sum += Math.pow(aux, 2);
                 }
+
+                System.out.println( );
+                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
+                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
+                System.out.println( );       
+
             }
             else if ( x == 1 ) {
                 System.out.println( "|       A        |       B         |       OR" );
@@ -73,8 +80,13 @@ public class App {
                 for( int i = 0; i < inputs.getRows(); i++ ) {
                     Double aux = OR( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) );
                     System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        "  + aux + "       |        " + r[1][i] + "       |        " + Math.round(Math.abs( (r[1][i] - aux) * 100 ) ) + " %");
-
+                    sum += Math.pow(aux, 2);
                 }
+
+                System.out.println( );
+                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
+                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
+                System.out.println( );   
             }
             else if ( x == 2) {
                 System.out.println( "|       A        |       B         |       XOR" );
@@ -82,8 +94,13 @@ public class App {
                 for( int i = 0; i < inputs.getRows(); i++ ) {
                     Double aux = XOR(AND( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) ), OR( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(1)) ) );
                     System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[2][i] + "       |        " + Math.round(Math.abs( (r[2][i] - aux) * 100 ) ) + " %" );
-
+                    sum += Math.pow(aux, 2);
                 }
+
+                System.out.println( );
+                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
+                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
+                System.out.println( );   
             }
             else {
                 System.out.println( "|       A        |       B         |       EQ" );
@@ -91,9 +108,15 @@ public class App {
                 for( int i = 0; i < inputs.getRows(); i++ ) {
                     double aux = EQ(AND( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) ), OR( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(1)) ) );
                     System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[3][i] + "       |        " + Math.round(Math.abs( (r[3][i] - aux) * 100 ) ) + " %" );
-                    
+                    sum += Math.pow(aux, 2);
                 }
+
+                System.out.println( );
+                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
+                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
+                System.out.println( );   
             }
+            sum = 0.0;
         }
 
         System.out.println();
