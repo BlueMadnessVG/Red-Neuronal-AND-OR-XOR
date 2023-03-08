@@ -19,6 +19,8 @@ public class App {
 
     public static double LR = 0.7;
     public static double Momentum = 0.3;
+    public static int epoch = 1;
+    public static double mse = 1;
 
     //variables de los humbrales
     public static double threshold[] = { 0.5, 1.5, -0.5 };
@@ -44,40 +46,30 @@ public class App {
 
         for( int i = 0; i < 9; i++ ){
             DeltaHist[i] = ( LR * DeltaGrad[i] ) + ( Momentum * DeltaHist[i] );
-
+            DeltaGrad[i] = 0;
         }
 
     } 
+
+    //Calculo de las nuevas deltas
+    public static void CalDelta(double input1, double input2, int i, int deltaI) {
+        DeltaGrad[i] += ( deltas[deltaI] * input1 );
+        DeltaGrad[i + 1] += ( deltas[deltaI] * input2 );
+        DeltaGrad[i + 2] += ( deltas[deltaI] * 1 );
+    }
 
     //ReValanseo de pesos
     public static void NewWeights() {
         int index = 0;
         for( int i = 0; i < 3; i++ ){
-
             for( int x = 0; x < 3; x++ ){
-
-                System.out.println( weight[x][i] + "            " + (index) );
                 weight[x][i] += DeltaHist[index];
-                System.out.println(weight[x][i]);
                 index++;
             }
-
         }
-
+        w = new Matrix(weight);
     }
 
-    //NEURONA PARA OR
-    public static double OR( double result ) {
-        //Pesos de la neurona
-        //verifica si el index pasa el humbral
-        return AF(result);
-    }
-    //NEURONA PARA AND
-    public static double AND( double result ) {
-        //Pesos de la neurona
-        //verifica si el index pasa el humbral
-        return AF(result);
-    }
     //NEURONA PARA XOR
     public static double XOR( Double iv1, Double iv2 ) {
         //Pesos de la neurona
@@ -89,123 +81,68 @@ public class App {
         return AF(x);
     }
 
-    public static double EQ( Double iv1, Double iv2 ) {
+    
+    public static void Epoch() {
         
-        double resultI[] = {iv1, iv2, 1};
-        Matrix aux = Matrix.createRowMatrix( resultI );
-        double x = MatrixMath.dotProduct(aux, w.getCol(3));
 
-        return AF(x);
+        Double sum = 0.0;
+
+            System.out.println( "|       A        |       B         |       XOR        |               O1 DELTA            |" );
+            //Ciclo para recorrer los valores de entrada ( inputs )
+            for( int i = 0; i < inputs.getRows(); i++ ) {
+
+                Double af1 = AF( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) );
+                Double af2 = AF( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(1)) );
+
+                Double aux = XOR( af1 , af2 );
+                Double error = aux - r[1][i];
+
+                EDelta(aux, error);
+                IDelta(af1, af2, weight[0][2], weight[1][2]);
+
+                for( int z = 0; z < 9; z += 3 ){
+                    if( z >= 6 ){
+                        CalDelta(af1, af2, z, 2);
+                    }
+                    else if ( z >= 3 ){
+                        CalDelta( inputs.get(i, 0), inputs.get(i, 1), z, 1 );
+                    }
+                    else {
+                        CalDelta(inputs.get(i, 0), inputs.get(i, 1), z, 0);
+                    }
+                }
+
+                System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[1][i] + "       |        " + error + "       |        " + deltas[0]);
+                sum += Math.pow( error, 2);
+            }
+
+            mse = (sum / 4) * 100;
+
+            System.out.println( );
+            System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
+            System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + mse + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
+            System.out.println( );   
+
+            HDelta();
+            NewWeights();
+
+        sum = 0.0;
+
+        System.out.println();
+
     }
 
     public static void main(String[] args) throws Exception {
 
-        Double sum = 0.0;
+        while( mse != 0.00001 ){
 
-        for( int x = 0; x < 4; x++ ){
-            /* if ( x == 0) {
-                System.out.println( "|       A        |       B         |                AND              |      IDEAL     |        ERROR       " );
-                //Ciclo para recorrer los valores de entrada ( inputs )
-                for( int i = 0; i < inputs.getRows(); i++ ) {
-                    Double aux = AND( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) );
-                    Double error = r[0][i] - aux;
-                    System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[0][i] + "       |        " + Math.round(Math.abs( error * 100 ) ) + " % ");
-                    sum += Math.pow( error, 2);
-                }
+            System.out.println("============================================================================== EPOCA " + epoch + 1 + " ==============================================================================");
+            System.out.println();
 
-                System.out.println( );
-                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
-                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
-                System.out.println( );       
-
-            }
-            else if ( x == 1 ) {
-                System.out.println( "|       A        |       B         |       OR" );
-                //Ciclo para recorrer los valores de entrada ( inputs )
-                for( int i = 0; i < inputs.getRows(); i++ ) {
-                    Double aux = OR( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(1)) );
-                    Double error = r[1][i] - aux;
-                    System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[1][i] + "       |        " + Math.round(Math.abs( error * 100 ) ) + " % ");
-                    sum += Math.pow( error, 2);
-                }
-
-                System.out.println( );
-                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
-                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
-                System.out.println( );   
-            } */
-            if ( x == 2) {
-                System.out.println( "|       A        |       B         |       XOR        |               O1 DELTA            |" );
-                //Ciclo para recorrer los valores de entrada ( inputs )
-                for( int i = 0; i < inputs.getRows(); i++ ) {
-
-                    Double af1 = AF( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) );
-                    Double af2 = AF( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(1)) );
-
-                    Double aux = XOR( af1 , af2 );
-                    Double error = aux - r[1][i];
-
-                    EDelta(aux, error);
-                    IDelta(af1, af2, weight[0][2], weight[1][2]);
-
-                    for( int z = 0; z < 9; z++ ){
-
-                        if( z >= 6 ){
-                            DeltaGrad[z] += ( deltas[2] * af1 );
-                            z++;
-                            DeltaGrad[z] += ( deltas[2] * af2 );
-                            z++;
-                            DeltaGrad[z] += ( deltas[2] * 1 );
-                        }
-                        else if ( z >= 3 ){
-                            DeltaGrad[z] += ( deltas[1] * inputs.get(i, 0) );
-                            z++;
-                            DeltaGrad[z] += ( deltas[1] * inputs.get(i, 1) );
-                            z++;
-                            DeltaGrad[z] += ( deltas[1] * 1 );
-                        }
-                        else {
-                            DeltaGrad[z] += ( deltas[0] * inputs.get(i, 0) );
-                            z++;
-                            DeltaGrad[z] += ( deltas[0] * inputs.get(i, 1) );
-                            z++;
-                            DeltaGrad[z] += ( deltas[0] * 1 ); 
-                        }
-                 
-                    }
-
-                    System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[1][i] + "       |        " + error + "       |        " + deltas[2]);
-                    sum += Math.pow( error, 2);
-                }
-
-                System.out.println( );
-                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
-                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
-                System.out.println( );   
-
-                HDelta();
-                NewWeights();
-
-            }
-/*             else {
-                System.out.println( "|       A        |       B         |       EQ" );
-                //Ciclo para recorrer los valores de entrada ( inputs )
-                for( int i = 0; i < inputs.getRows(); i++ ) {
-                    double aux = EQ(AND( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(0)) ), OR( MatrixMath.dotProduct(inputs.getRow(i), w.getCol(1)) ) );
-                    Double error = r[3][i] - aux;
-                    System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[3][i] + "       |        " + Math.round(Math.abs( error * 100 ) ) + " % ");
-                    sum += Math.pow( error, 2);
-                }
-
-                System.out.println( );
-                System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
-                System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + ((sum / 4) * 100) + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
-                */ System.out.println( );   
-            //}
-            sum = 0.0;
+            Epoch();
+            epoch++;
         }
-
-        System.out.println();
+        
         
     }
 }
