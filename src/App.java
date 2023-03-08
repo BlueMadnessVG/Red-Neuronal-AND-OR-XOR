@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 import library.Matrix;
 import library.MatrixMath;
 
@@ -19,8 +21,11 @@ public class App {
 
     public static double LR = 0.7;
     public static double Momentum = 0.3;
-    public static int epoch = 1;
+    public static int epoch = 0;
     public static double mse = 1;
+
+    public static double input = 2;
+    public static double hidden = 2;
 
     //variables de los humbrales
     public static double threshold[] = { 0.5, 1.5, -0.5 };
@@ -28,6 +33,27 @@ public class App {
     //Funcion de activacion
     public static double AF( double result ) {
         return ( 1 / ( 1 + Math.exp( -result ) ) );
+    }
+
+    //Calcular NGUYEN-WIDROW
+    public static void NGUYENWIDROW() {
+
+        Double beta =  0.7 * ( Math.pow(hidden, ( 1 / input )) );
+        Double sumatoria = 0.0;
+
+        for( int i = 0; i < hidden; i++ ){
+            for( int y = 0; y < input + 1; y++ ){
+                sumatoria += Math.pow(weight[y][i], 2);
+            }
+            sumatoria = Math.sqrt(sumatoria);
+            for( int x = 0; x < input + 1; x++ ){
+                weight[x][i] = ( beta * weight[x][i] ) / sumatoria;
+                System.out.println(weight[x][i]);
+            }
+            sumatoria = 0.0;
+            w = new Matrix(weight);
+        }
+
     }
 
     //Claculo de delta exterior
@@ -87,7 +113,6 @@ public class App {
 
         Double sum = 0.0;
 
-            System.out.println( "|       A        |       B         |       XOR        |               O1 DELTA            |" );
             //Ciclo para recorrer los valores de entrada ( inputs )
             for( int i = 0; i < inputs.getRows(); i++ ) {
 
@@ -112,32 +137,32 @@ public class App {
                     }
                 }
 
-                System.out.println( "|       " + inputs.get(i, 0) + "      |       " + inputs.get(i, 1) + "       |        " + aux + "       |        " + r[1][i] + "       |        " + error + "       |        " + deltas[0]);
                 sum += Math.pow( error, 2);
             }
 
-            mse = (sum / 4) * 100;
-
-            System.out.println( );
-            System.out.println("|           SUMATORIA         |               ESS           |               MSE          |               RMS            |");
-            System.out.println("|       " + sum + "     |       " + (sum / 2) + "     |       " + mse + "%    |       " + (Math.sqrt(sum / 4) * 100) + "%     |");
-            System.out.println( );   
+            mse = (sum / 4) * 100; 
 
             HDelta();
             NewWeights();
 
         sum = 0.0;
 
-        System.out.println();
-
     }
 
     public static void main(String[] args) throws Exception {
 
-        while( mse != 0.00001 ){
+        Scanner scanner = new Scanner(System.in);
+        System.out.print( "Utilizar NGUYEN-WIDROW en los pesos (1 .- si, 2 .- no): " );
+        int message = scanner.nextInt();
 
-            System.out.println("============================================================================== EPOCA " + epoch + 1 + " ==============================================================================");
-            System.out.println();
+        if( message == 1 ){
+            NGUYENWIDROW();
+        }
+
+
+        while(  mse > 0.001 ){
+
+            System.out.println("Epoca " + epoch + "     |    Error :    " + mse);
 
             Epoch();
             epoch++;
