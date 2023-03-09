@@ -9,10 +9,10 @@ public class App {
     
     //INPUT MATRIX INITIALIZATION
     public static double[][] i = { {1,0,1}, {0,1,1}, {0,0,1}, {1,1,1}} ;
-    public static int[][] r = { {0, 0, 0, 1}, {0, 0, 1, 1}, {0, 0, 1, 1}, {1, 0, 0, 1} };
+    public static int[][] r = { {0, 0, 0, 1}, {1, 1, 0, 1}, {1, 1, 0, 1}, {1, 0, 0, 1} };
     public static Matrix inputs = new Matrix(i);
     //WEIGHT MATRIX INITIALIZATION
-    public static double[][] weight = { {-0.07, 0.94, -0.22, 1}, {0.22, 0.46, 0.58, -1}, {-0.46, 0.1, 0.78, 1} }; 
+    public static double[][] weight = { {-0.07, 0.46, -0.22}, {0.94, -0.46, 0.58}, {0.22, 0.1, 0.78} }; 
     public static Matrix w = new Matrix(weight);
 
     public static double[] deltas = { 0, 0, 0 };
@@ -22,7 +22,7 @@ public class App {
     public static double LR = 0.7;
     public static double Momentum = 0.3;
     public static int epoch = 0;
-    public static double mse = 1;
+    public static double mse = 100;
 
     public static double input = 2;
     public static double hidden = 2;
@@ -38,7 +38,8 @@ public class App {
     //Calcular NGUYEN-WIDROW
     public static void NGUYENWIDROW() {
 
-        Double beta =  0.7 * ( Math.pow(hidden, ( 1 / input )) );
+        double aux = (1 / input);
+        Double beta =  0.7 * ( Math.pow(hidden, ( aux )) );
         Double sumatoria = 0.0;
 
         for( int i = 0; i < hidden; i++ ){
@@ -47,13 +48,13 @@ public class App {
             }
             sumatoria = Math.sqrt(sumatoria);
             for( int x = 0; x < input + 1; x++ ){
+                System.out.println(weight[x][i]);
                 weight[x][i] = ( beta * weight[x][i] ) / sumatoria;
                 System.out.println(weight[x][i]);
             }
             sumatoria = 0.0;
-            w = new Matrix(weight);
         }
-
+        w = new Matrix(weight);
     }
 
     //Claculo de delta exterior
@@ -160,7 +161,7 @@ public class App {
         }
 
 
-        while(  mse > 0.001 ){
+        while( epoch != 3 ){
 
             System.out.println("Epoca " + epoch + "     |    Error :    " + mse);
 
