@@ -159,14 +159,42 @@ public class App {
         System.out.print( "Utilizar NGUYEN-WIDROW en los pesos (1 .- si, 2 .- no): " );
         int message = scanner.nextInt();
 
+        boolean Ciclo = true;
+
         if( message == 1 ){
             NGUYENWIDROW();
         }
 
         while( epoch != 1001 ){
             Epoch();
-            System.out.println("Epoca " + epoch + "     |    Error :    " + mse);
             epoch++;
+        }
+
+        while( Ciclo ){
+
+            System.out.println();
+
+            System.out.print( "Ingrese el valor del peso: " );
+            Double ip1 = scanner.nextDouble();
+            System.out.print( "Ingrese el valor del color: " );
+            Double ip2 = scanner.nextDouble();
+
+            double[][] ip = { { ip1, ip2, 1 } };
+            Matrix ipM = new Matrix(ip);
+
+            Double af1 = AF( MatrixMath.dotProduct(ipM.getRow(0), w.getCol(0)) );
+            Double af2 = AF( MatrixMath.dotProduct(ipM.getRow(0), w.getCol(1)) );
+            Double aux = XOR( af1 , af2 );
+
+            System.out.println();
+            if( aux > 0.5 )
+                System.out.println("Salidas: " + aux + "        |   Tipo de frutas: Melon");
+            else 
+                System.out.println("Salidas: " + aux + "        |   Tipo de frutas: Manzana");
+
+            System.out.println();
+            System.out.print( "Finalizar comparaciones: " );
+            Ciclo = scanner.nextBoolean();
         }
 
         
