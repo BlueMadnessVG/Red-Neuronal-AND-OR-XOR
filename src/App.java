@@ -8,11 +8,11 @@ import library.MatrixMath;
 public class App {
     
     //INPUT MATRIX INITIALIZATION
-    public static double[][] i = { {0,0,0,1}, {1,1,1,1}, {0,1,0,1}, {0,0.43,1,1}, {1,0,0,1}} ;
-    public static int[][] r = { {0, 0, 0, 1}, {1, 0, 0, 1, 1}, {1, 1, 0, 1}, {1, 0, 0, 1} };
+    public static double[][] i = { {1,0,1}, {0,1,1}, {0,0,1}, {1,1,1}} ;
+    public static int[][] r = { {0, 0, 0, 1}, {1, 1, 0, 1}, {1, 1, 0, 1}, {1, 0, 0, 1} };
     public static Matrix inputs = new Matrix(i);
     //WEIGHT MATRIX INITIALIZATION
-    public static double[][] weight = { {-0.07, 0.94, -0.22}, {0.22, 0.46, 0.58}, {0.43, -0.31, 0.78}, {-0.46, 0.1, 0.0} }; 
+    public static double[][] weight = { {-0.07, 0.46, -0.22}, {0.94, -0.46, 0.58}, {0.22, 0.1, 0.78} }; 
     public static Matrix w = new Matrix(weight);
 
     public static double[] deltas = { 0, 0, 0 };
@@ -24,8 +24,8 @@ public class App {
     public static int epoch = 1;
     public static double mse = 100;
 
-    public static double input = 3.0;
-    public static double hidden = 2.0;
+    public static double input = 2;
+    public static double hidden = 2;
 
     //variables de los humbrales
     public static double threshold[] = { 0.5, 1.5, -0.5 };
@@ -38,16 +38,20 @@ public class App {
     //Calcular NGUYEN-WIDROW
     public static void NGUYENWIDROW() {
 
-        Double beta =  0.7 * ( Math.pow(hidden, ( 1 / input )) );
+        double aux = (1 / input);
+        Double beta =  0.7 * ( Math.pow(hidden, ( aux )) );
         Double sumatoria = 0.0;
 
         for( int i = 0; i < hidden; i++ ){
+            for( int y = 0; y < input + 1; y++ ){
             for( int y = 0; y < input + 1; y++ ){
                 sumatoria += Math.pow(weight[y][i], 2);
             }
             sumatoria = Math.sqrt(sumatoria);
             for( int x = 0; x < input + 1; x++ ){
+                System.out.println(weight[x][i]);
                 weight[x][i] = ( beta * weight[x][i] ) / sumatoria;
+                System.out.println(weight[x][i]);
             }
             sumatoria = 0.0;
         }
@@ -167,15 +171,18 @@ public class App {
         int message = scanner.nextInt();
 
         if( message == 1 ){
-            w = new Matrix(4, 3);
-            w.ramdomize(-1, 1);
             NGUYENWIDROW();
         }
 
-        while( epoch != 801 ){
+
+        while( epoch != 3 ){
+
+            System.out.println("Epoca " + epoch + "     |    Error :    " + mse);
+
             Epoch();
             epoch++;
-        }        
+        }
+        
         System.out.println("Epoca " + epoch + "     |    Error :    " + mse);
         
     }
